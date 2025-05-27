@@ -16,11 +16,6 @@
       (string/replace "+" "-")
       (string/replace "/" "_")))
 
-(defn graphviz-url
-  [graphviz]
-  (str "https://demo.kroki.io/graphviz/png/"
-       (encode-for-kroki graphviz)))
-
 (def diagram-types
   {:blockdiag "BlockDiag"
    :bpmn "BPMN"
@@ -42,15 +37,21 @@
    :vegalite "Vega-Lite"
    :wavedrom "WaveDrom"})
 
-(defn graphviz-cmd
-  "kroki <type> <graph> # generate a graphviz graph. Examples: https://kroki.io/examples.html"
-  [{[_ graphviz] :match :as cmd}]
-  (info "kroki" cmd)
-  (graphviz-url graphviz))
+(defn diagram-url
+  "Generate a kroki URL for any supported diagram type"
+  [diagram-type diagram-content]
+  (let [type-name (name diagram-type)]
+    (str "https://demo.kroki.io/" type-name "/png/"
+         (encode-for-kroki diagram-content))))
 
-;; TODO
-;; - consider supporting all formats
-;; - multi line commands
+(defn diagram-cmd
+  "kroki <type> <diagram> # generate a diagram of the specified type"
+  [{[_ type-str diagram-content] :match :as cmd}]
+  (info "kroki" cmd)
+  (let [diagram-type (keyword (string/lower-case type-str))]
+    (if (contains? diagram-types diagram-type)
+      (diagram-url diagram-type diagram-content)
+      {:result/error (format "Unsupported diagram type: %s. Use `kroki types` to see supported types." type-str)})))
 
 (defn list-types-cmd
   "kroki types # list types of supported diagrams"
@@ -59,7 +60,25 @@
    (map (fn [[k v]] (format "`%s` - %s" (name k) v)) diagram-types)
    :result/data diagram-types})
 
+(defn help-cmd
+  "kroki help # show usage examples"
+  [_]
+  {:result/value
+   ["Usage: `kroki <type> <diagram-content>`"
+    ""
+    "Examples:"
+    "• `kroki graphviz digraph { A -> B }`"
+    "• `kroki mermaid graph TD; A-->B`"
+    "• `kroki plantuml @startuml; Alice -> Bob; @enduml`"
+    ""
+    "Use `kroki types` to see all supported diagram types."
+    "More examples: https://kroki.io/examples.html"]})
+
+;; Create dynamic regex pattern that matches all diagram types
+(def diagram-types-pattern
+  (str "(" (string/join "|" (map name (keys diagram-types))) ")\\s+(.+)"))
+
 (cmd-hook #"kroki"
   #"types" list-types-cmd
-  #"graphviz\s+(.+)" graphviz-cmd)
-
+  #"help" help-cmd
+  (re-pattern diagram-types-pattern) diagram-cmd)
