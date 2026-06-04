@@ -12,8 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     container: clojure:lein
     steps:
+      - name: Install git
+        run: apt-get update && apt-get install -y git
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: release
         env:
           CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
