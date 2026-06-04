@@ -34,16 +34,24 @@
    :packetdiag "PacketDiag"
    :rackdiag "RackDiag"
    :c4plantuml "C4 PlantUML"
+   :d2 "D2"
+   :dbml "DBML"
    :ditaa "Ditaa"
    :erd "Erd"
+   :excalidraw "Excalidraw"
    :graphviz "GraphViz"
    :mermaid "Mermaid"
    :nomnoml "Nomnoml"
+   :pikchr "Pikchr"
    :plantuml "PlantUML"
+   :structurizr "Structurizr"
    :svgbob "Svgbob"
+   :symbolator "Symbolator"
+   :umlet "UMLet"
    :vega "Vega"
    :vegalite "Vega-Lite"
-   :wavedrom "WaveDrom"})
+   :wavedrom "WaveDrom"
+   :wireviz "WireViz"})
 
 (defn kroki-cmd
   "kroki <type> <diagram-source> # generate a Kroki diagram of any supported type. Examples: https://kroki.io/examples.html"

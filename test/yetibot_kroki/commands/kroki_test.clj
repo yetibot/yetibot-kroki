@@ -68,5 +68,5 @@
 (fact
  "list-types-cmd returns all supported diagram types"
  (let [res (list-types-cmd {})]
-   (:result/data res) => (contains {:graphviz "GraphViz", :mermaid "Mermaid"})
-   (count (:result/value res)) => 19))
+   (:result/data res) => (contains {:graphviz "GraphViz", :mermaid "Mermaid", :excalidraw "Excalidraw", :d2 "D2", :wireviz "WireViz"})
+   (count (:result/value res)) => 27))
