@@ -16,10 +16,13 @@
       (string/replace "+" "-")
       (string/replace "/" "_")))
 
+(defn kroki-url
+  [type graph]
+  (str "https://demo.kroki.io/" type "/png/" (encode-for-kroki graph)))
+
 (defn graphviz-url
   [graphviz]
-  (str "https://demo.kroki.io/graphviz/png/"
-       (encode-for-kroki graphviz)))
+  (kroki-url "graphviz" graphviz))
 
 (def diagram-types
   {:blockdiag "BlockDiag"
@@ -42,15 +45,14 @@
    :vegalite "Vega-Lite"
    :wavedrom "WaveDrom"})
 
-(defn graphviz-cmd
-  "kroki <type> <graph> # generate a graphviz graph. Examples: https://kroki.io/examples.html"
-  [{[_ graphviz] :match :as cmd}]
+(defn kroki-cmd
+  "kroki <type> <diagram-source> # generate a Kroki diagram of any supported type. Examples: https://kroki.io/examples.html"
+  [{[_ type-str graph-string] :match :as cmd}]
   (info "kroki" cmd)
-  (graphviz-url graphviz))
-
-;; TODO
-;; - consider supporting all formats
-;; - multi line commands
+  (let [type-key (keyword (string/lower-case type-str))]
+    (if (contains? diagram-types type-key)
+      (kroki-url (name type-key) graph-string)
+      {:result/error (format "Unsupported diagram type: `%s`. Use `kroki types` to see supported types." type-str)})))
 
 (defn list-types-cmd
   "kroki types # list types of supported diagrams"
@@ -61,5 +63,4 @@
 
 (cmd-hook #"kroki"
   #"types" list-types-cmd
-  #"graphviz\s+(.+)" graphviz-cmd)
-
+  #"([a-zA-Z0-9_-]+)\s+([\s\S]+)" kroki-cmd)
