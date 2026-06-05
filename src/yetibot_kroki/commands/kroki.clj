@@ -18,21 +18,17 @@
 
 (defn kroki-url
   [type graph]
-  (str "https://demo.kroki.io/" type "/png/" (encode-for-kroki graph)))
+  (str "https://kroki.io/" type "/png/" (encode-for-kroki graph)))
 
 (defn graphviz-url
   [graphviz]
   (kroki-url "graphviz" graphviz))
 
 (def diagram-types
-  {:blockdiag "BlockDiag"
+  {:actdiag "ActDiag"
+   :blockdiag "BlockDiag"
    :bpmn "BPMN"
    :bytefield "Bytefield"
-   :seqdiag "SeqDiag"
-   :actdiag "ActDiag"
-   :nwdiag "NwDiag"
-   :packetdiag "PacketDiag"
-   :rackdiag "RackDiag"
    :c4plantuml "C4 PlantUML"
    :d2 "D2"
    :dbml "DBML"
@@ -42,11 +38,16 @@
    :graphviz "GraphViz"
    :mermaid "Mermaid"
    :nomnoml "Nomnoml"
+   :nwdiag "NwDiag"
+   :packetdiag "PacketDiag"
    :pikchr "Pikchr"
    :plantuml "PlantUML"
+   :rackdiag "RackDiag"
+   :seqdiag "SeqDiag"
    :structurizr "Structurizr"
    :svgbob "Svgbob"
    :symbolator "Symbolator"
+   :tikz "TikZ"
    :umlet "UMLet"
    :vega "Vega"
    :vegalite "Vega-Lite"

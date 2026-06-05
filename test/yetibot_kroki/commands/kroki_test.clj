@@ -42,16 +42,16 @@
 (fact
  "kroki-url generates expected kroki api urls"
  (kroki-url "mermaid" "graph TD; A-->B;")
- => (str "https://demo.kroki.io/mermaid/png/" (encode-for-kroki "graph TD; A-->B;"))
+ => (str "https://kroki.io/mermaid/png/" (encode-for-kroki "graph TD; A-->B;"))
 
  (kroki-url "graphviz" "digraph G {}")
- => (str "https://demo.kroki.io/graphviz/png/" (encode-for-kroki "digraph G {}")))
+ => (str "https://kroki.io/graphviz/png/" (encode-for-kroki "digraph G {}")))
 
 (fact
  "kroki-cmd handles valid, invalid, and multiline diagrams"
  ;; valid diagram type
  (kroki-cmd {:match ["kroki graphviz digraph G {}" "graphviz" "digraph G {}"]})
- => (str "https://demo.kroki.io/graphviz/png/" (encode-for-kroki "digraph G {}"))
+ => (str "https://kroki.io/graphviz/png/" (encode-for-kroki "digraph G {}"))
 
  ;; invalid diagram type
  (kroki-cmd {:match ["kroki non-existent digraph G {}" "non-existent" "digraph G {}"]})
@@ -59,14 +59,14 @@
 
  ;; case insensitivity for diagram types
  (kroki-cmd {:match ["kroki MERMAID graph TD; A-->B;" "MERMAID" "graph TD; A-->B;"]})
- => (str "https://demo.kroki.io/mermaid/png/" (encode-for-kroki "graph TD; A-->B;"))
+ => (str "https://kroki.io/mermaid/png/" (encode-for-kroki "graph TD; A-->B;"))
 
  ;; multi-line diagram support
  (kroki-cmd {:match ["kroki plantuml\n@startuml\nAlice -> Bob: Hello\n@enduml" "plantuml" "@startuml\nAlice -> Bob: Hello\n@enduml"]})
- => (str "https://demo.kroki.io/plantuml/png/" (encode-for-kroki "@startuml\nAlice -> Bob: Hello\n@enduml")))
+ => (str "https://kroki.io/plantuml/png/" (encode-for-kroki "@startuml\nAlice -> Bob: Hello\n@enduml")))
 
 (fact
  "list-types-cmd returns all supported diagram types"
  (let [res (list-types-cmd {})]
    (:result/data res) => (contains {:graphviz "GraphViz", :mermaid "Mermaid", :excalidraw "Excalidraw", :d2 "D2", :wireviz "WireViz"})
-   (count (:result/value res)) => 27))
+   (count (:result/value res)) => 28))
