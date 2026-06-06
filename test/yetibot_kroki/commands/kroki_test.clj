@@ -45,7 +45,13 @@
  => (str "https://kroki.io/mermaid/png/" (encode-for-kroki "graph TD; A-->B;"))
 
  (kroki-url "graphviz" "digraph G {}")
- => (str "https://kroki.io/graphviz/png/" (encode-for-kroki "digraph G {}")))
+ => (str "https://kroki.io/graphviz/png/" (encode-for-kroki "digraph G {}"))
+
+ (kroki-url "excalidraw" "{\"type\": \"excalidraw\"}")
+ => (str "https://kroki.io/excalidraw/svg/" (encode-for-kroki "{\"type\": \"excalidraw\"}"))
+
+ (kroki-url "BPMN" "bpmn content")
+ => (str "https://kroki.io/BPMN/svg/" (encode-for-kroki "bpmn content")))
 
 (fact
  "kroki-cmd handles valid, invalid, and multiline diagrams"

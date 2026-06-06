@@ -16,9 +16,13 @@
       (string/replace "+" "-")
       (string/replace "/" "_")))
 
+(def svg-only-types
+  #{"bpmn" "bytefield" "excalidraw" "nomnoml" "pikchr" "svgbob" "wavedrom"})
+
 (defn kroki-url
   [type graph]
-  (str "https://kroki.io/" type "/png/" (encode-for-kroki graph)))
+  (let [format (if (contains? svg-only-types (string/lower-case type)) "svg" "png")]
+    (str "https://kroki.io/" type "/" format "/" (encode-for-kroki graph))))
 
 (defn graphviz-url
   [graphviz]
