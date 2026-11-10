@@ -1,0 +1,35 @@
+name: Test
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: DeLaGuardo/setup-clojure@13
+        with:
+          lein: 2.11.2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-kroki-maven-${{ hashFiles('project.clj') }}
+          restore-keys: |
+            ${{ runner.os }}-kroki-maven-
+      - name: Offline client and command regressions
+        timeout-minutes: 6
+        run: lein midje :all
