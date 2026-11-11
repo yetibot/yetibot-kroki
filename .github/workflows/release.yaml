@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-    pull_request:
-      - master
 
 jobs:
   deploy:
@@ -18,6 +16,8 @@ jobs:
           git config --global --add safe.directory '*'
       - name: checkout
         uses: actions/checkout@v4
+      - name: Test before publishing
+        run: lein midje :all
       - name: release
         env:
           CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}

@@ -1,7 +1,8 @@
 (ns yetibot-kroki.commands.kroki-test
   (:require
    [clojure.string :as string]
-   [midje.sweet :refer [fact => contains]]
+   [midje.sweet :refer [fact =>]]
+   [yetibot-kroki.client :as client]
    [yetibot-kroki.commands.kroki :refer [encode-for-kroki
                                          kroki-url
                                          kroki-cmd
@@ -53,26 +54,30 @@
  (kroki-url "BPMN" "bpmn content")
  => (str "https://kroki.io/BPMN/svg/" (encode-for-kroki "bpmn content")))
 
-(fact
- "kroki-cmd handles valid, invalid, and multiline diagrams"
- ;; valid diagram type
- (kroki-cmd {:match ["kroki graphviz digraph G {}" "graphviz" "digraph G {}"]})
- => (str "https://kroki.io/graphviz/png/" (encode-for-kroki "digraph G {}"))
+(fact "shorthand and explicit render pass literal source to the shared renderer"
+  (with-redefs [client/render! identity]
+    (kroki-cmd {:match ["old match" "MERMAID" "graph TD; A-->B;"]})
+    => {:type "mermaid" :source "graph TD; A-->B;"}
+    (kroki-cmd {:match "render graphviz --format svg -- digraph G { a -> b }"})
+    => {:type "graphviz" :source "digraph G { a -> b }" :format "svg"}
+    (kroki-cmd {:match "render d2 --option layout=tala -- x -> y"})
+    => {:type "d2" :source "x -> y" :options {"layout" "tala"}}
+    (kroki-cmd {:match "render plantuml\n@startuml\nAlice -> Bob: Hello\n@enduml"})
+    => {:type "plantuml" :source "@startuml\nAlice -> Bob: Hello\n@enduml"}
+    (kroki-cmd {:match "render mermaid -- --format is literal"})
+    => {:type "mermaid" :source "--format is literal"}))
 
- ;; invalid diagram type
- (kroki-cmd {:match ["kroki non-existent digraph G {}" "non-existent" "digraph G {}"]})
- => {:result/error "Unsupported diagram type: `non-existent`. Use `kroki types` to see supported types."}
+(fact "pipe input and one outer fence preserve the complete source"
+  (with-redefs [client/render! identity]
+    (kroki-cmd {:match "render mermaid" :raw "graph TD\n  A-->B\n"})
+    => {:type "mermaid" :source "graph TD\n  A-->B\n"}
+    (kroki-cmd {:match "mermaid ```mermaid\ngraph TD\n  A-->B\n```"})
+    => {:type "mermaid" :source "graph TD\n  A-->B"}))
 
- ;; case insensitivity for diagram types
- (kroki-cmd {:match ["kroki MERMAID graph TD; A-->B;" "MERMAID" "graph TD; A-->B;"]})
- => (str "https://kroki.io/mermaid/png/" (encode-for-kroki "graph TD; A-->B;"))
-
- ;; multi-line diagram support
- (kroki-cmd {:match ["kroki plantuml\n@startuml\nAlice -> Bob: Hello\n@enduml" "plantuml" "@startuml\nAlice -> Bob: Hello\n@enduml"]})
- => (str "https://kroki.io/plantuml/png/" (encode-for-kroki "@startuml\nAlice -> Bob: Hello\n@enduml")))
-
-(fact
- "list-types-cmd returns all supported diagram types"
- (let [res (list-types-cmd {})]
-   (:result/data res) => (contains {:graphviz "GraphViz", :mermaid "Mermaid", :excalidraw "Excalidraw", :d2 "D2", :wireviz "WireViz"})
-   (count (:result/value res)) => 28))
+(fact "catalog/help/errors are structured rather than unchecked links"
+  (with-redefs [client/types! (fn ([] :catalog) ([type] {:selected type}))]
+    (list-types-cmd {}) => :catalog
+    (kroki-cmd {:match "types"}) => :catalog
+    (kroki-cmd {:match "info LINI"}) => {:selected "lini"})
+  (:result/value (kroki-cmd {:match ""})) => string?
+  (:result/error (kroki-cmd {:match "render mermaid --format"})) => string?)

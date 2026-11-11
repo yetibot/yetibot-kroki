@@ -21,6 +21,6 @@
   {:provided {:dependencies [[yetibot/core "LATEST"]]}
    :profiles/dev {}
    :dev [:profiles/dev
-         {:dependencies [[lambdaisland/kaocha-midje "0.0-5"
-                          :exclusions [midje/midje]]
-                         [midje/midje "1.9.6"]]}]})
+         {:plugins [[lein-midje "3.2.2"]]
+          :dependencies [[midje "1.10.9"]]}]}
+  :aliases {"test" ["midje"]})
