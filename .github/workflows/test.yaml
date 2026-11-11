@@ -30,6 +30,10 @@ jobs:
           key: ${{ runner.os }}-kroki-maven-${{ hashFiles('project.clj') }}
           restore-keys: |
             ${{ runner.os }}-kroki-maven-
+      - name: Validate generated release POM
+        run: |
+          lein pom
+          python3 .github/ci/check-release-pom.py
       - name: Offline client and command regressions
         timeout-minutes: 6
         run: lein midje :all

@@ -18,7 +18,7 @@
                                       :sign-releases false}]]
 
   :profiles
-  {:provided {:dependencies [[yetibot/core "LATEST"]]}
+  {:provided {:dependencies [[yetibot/core "20261111.163113.0605945"]]}
    :profiles/dev {}
    :dev [:profiles/dev
          {:plugins [[lein-midje "3.2.2"]]
